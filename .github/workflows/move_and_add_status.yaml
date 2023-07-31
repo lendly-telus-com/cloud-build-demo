@@ -12,9 +12,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Move Issue to Project
-        uses: peter-evans/move-project-card@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          project_name: 'itsm-crq-demo'
-          column_name: 'To Do'
-          issue_number: ${{ github.event.issue.number }}
+        run: |
+          # Extract the necessary information
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          PROJECT_ID=1   # Replace with your actual project ID
+          COLUMN_ID='Todo'  # Replace with your actual column ID
+
+          # Move the issue to the project and column using the GitHub REST API
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/projects/columns/cards/$ISSUE_NUMBER/moves \
+            -d "{ \"position\": \"top\", \"column_id\": $COLUMN_ID }"
