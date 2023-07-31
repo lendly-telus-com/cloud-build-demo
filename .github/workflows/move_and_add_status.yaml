@@ -1,0 +1,40 @@
+name: Move Issue to Project and Add Status Label
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  move_and_add_status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Move Issue to Project
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /projects/columns/${{ secrets.COLUMN_ID }}/cards
+          column_id: ${{ secrets.COLUMN_ID }}
+          content_id: ${{ github.event.issue.node_id }}
+          content_type: Issue
+          accept: application/vnd.github.inertia-preview+json
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+
+      - name: Add Todo Label
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.MY_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const issueNumber = issue.number;
+            const repo = context.repo.owner + '/' + context.repo.repo;
+            const label = 'todo';
+            const addLabel = async () => {
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: [label]
+              });
+            };
+            addLabel();
