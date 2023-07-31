@@ -8,6 +8,9 @@ jobs:
   move_and_add_status:
     runs-on: ubuntu-latest
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+
     steps:
       - name: Move Issue to Project
         uses: octokit/request-action@v2.x
@@ -18,12 +21,12 @@ jobs:
           content_type: Issue
           accept: application/vnd.github.inertia-preview+json
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+          GITHUB_TOKEN: env.GITHUB_TOKEN
 
       - name: Add Todo Label
         uses: actions/github-script@v4
         with:
-          github-token: ${{ secrets.MY_TOKEN }}
+          github-token: env.GITHUB_TOKEN
           script: |
             const issue = context.payload.issue;
             const issueNumber = issue.number;
