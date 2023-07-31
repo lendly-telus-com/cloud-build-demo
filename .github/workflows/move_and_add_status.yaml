@@ -4,10 +4,6 @@ on:
   issues:
     types: [opened]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-  COLUMN_ID: ${{ secrets.COLUMN_ID }}
-
 jobs:
   move_and_add_status:
     runs-on: ubuntu-latest
@@ -16,18 +12,18 @@ jobs:
       - name: Move Issue to Project
         uses: octokit/request-action@v2.x
         with:
-          route: POST /projects/columns/${{ env.COLUMN_ID }}/cards
-          column_id: ${{ env.COLUMN_ID }}
+          route: POST /projects/columns/${{ secrets.COLUMN_ID }}/cards
+          column_id: ${{ secrets.COLUMN_ID }}
           content_id: ${{ github.event.issue.node_id }}
           content_type: Issue
           accept: application/vnd.github.inertia-preview+json
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
       - name: Add Todo Label
         uses: actions/github-script@v4
         with:
-          github-token: ${{ env.GITHUB_TOKEN }}
+          github-token: ${{ secrets.MY_TOKEN }}
           script: |
             const issue = context.payload.issue;
             const issueNumber = issue.number;
