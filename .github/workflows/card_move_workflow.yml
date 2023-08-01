@@ -1,0 +1,13 @@
+name: Card Movement Workflow
+
+on:
+  repository_dispatch:
+    types: ['card_moved']
+
+jobs:
+  print_message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show Output
+        run: |
+          echo "Workflow: ${{ github.event.client_payload.message }}"
