@@ -1,19 +1,82 @@
-name: Print Issue URL
+name: Print Issue Status
 on:
   issues:
     types:
       - closed
 
 jobs:
-  print_issue_url:
+  print_issue_status:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out the code
         uses: actions/checkout@v2
 
-      - name: Print Issue URL
-        env:
-          ISSUE_URL: ${{ github.event.issue.html_url }}
+      - name: Get Issue URL
+        id: get_url
         run: |
-          echo "Issue URL: $ISSUE_URL"
+          ISSUE_URL=$(echo "${{ github.event.issue.html_url }}")
+          echo "::set-output name=issue_url::$ISSUE_URL"
+
+      - name: Get Issue Status and Name
+        id: get_status_name
+        run: |
+          # Create the GraphQL query string
+          GRAPHQL_QUERY=$(cat <<EOF
+              {
+              "query": "query {
+                  user(login: \"lendly-telus-com\") {
+                  projectV2(number: 1) {
+                      id
+                      items(first: 50) {
+                      nodes {
+                          id
+                          content {
+                          ... on Issue {
+                              id
+                              state
+                              number
+                              title
+                              url
+                          }
+                          }
+                          fieldValues(first: 10) {
+                          nodes {
+                              ... on ProjectV2ItemFieldSingleSelectValue {
+                              id
+                              name
+                              field {
+                                  ... on ProjectV2SingleSelectField {
+                                  name
+                                  }
+                              }
+                              }
+                          }
+                          }
+                      }
+                      }
+                  }
+                  }
+              }"
+              }
+              EOF
+              )
+          # Use GraphQL API to get the issue status and name from projectV2
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -X POST -d "$GRAPHQL_QUERY" https://api.github.com/graphql)
+          echo "::set-output name=response::$RESPONSE"
+
+      - name: Extract Status and Name
+        id: extract_status_name
+        run: |
+          ISSUE_URL="${{ steps.get_url.outputs.issue_url }}"
+          RESPONSE="${{ steps.get_status_name.outputs.response }}"
+          # Find the item node that matches the issue URL
+          STATUS=$(echo "$RESPONSE" | jq -r --arg ISSUE_URL "$ISSUE_URL" '.data.user.projectV2.items.nodes[] | select(.content.url == $ISSUE_URL) | .content.state')
+          NAME=$(echo "$RESPONSE" | jq -r --arg ISSUE_URL "$ISSUE_URL" '.data.user.projectV2.items.nodes[] | select(.content.url == $ISSUE_URL) | .fieldValues.nodes[].name')
+          echo "::set-output name=status::$STATUS"
+          echo "::set-output name=name::$NAME"
+
+      - name: Print Issue Status and Name
+        run: |
+          echo "Issue Status: ${{ steps.extract_status_name.outputs.status }}"
+          echo "Name: ${{ steps.extract_status_name.outputs.name }}"
