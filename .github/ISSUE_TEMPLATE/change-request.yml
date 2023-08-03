@@ -1,0 +1,112 @@
+name: Change Request
+description: Submit a Change Request for review
+title: "[CRQ] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Change Details
+  - type: input
+    id: datetime
+    attributes:
+      label: Date & Time (EST)
+      description: When is this change planned to be released?
+      placeholder: YYYY-MM-DD HH:MM:SS
+    validations:
+      required: true
+  - type: checkboxes
+    id: dockerfile-fix
+    attributes:
+      label: "Dockerfile npm/permissions fix"
+      description: "Have you implemented the Dockerfile fix described in https://telusdigital.slack.com/archives/C051JUV9CUW/p1689117019105719? (Your repository may have an automated PR to do so)"
+      options:
+        - label: "Yes"
+        - label: "No"
+        - label: "Not Applicable"
+    validations:
+      required: true
+  - type: textarea
+    id: changelog
+    attributes:
+      label: What is changing?
+      description: Tell us what this change request contaians.
+      placeholder: Performance improvements, more purple on TELUS logo.
+    validations:
+      required: true
+  - type: input
+    id: pull-request
+    attributes:
+      label: Pull Request URL
+      description: What is the URL for the pull request containing the change?
+      placeholder: https://github.com/telus/tdrm/pulls/1
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: GitHub Scope
+      options:
+        - Site Builder Component
+        - uDS Component
+        - STORYHIVE
+        - API Docs
+        - IBP
+        - GCP / CCoE
+        - Hive / Adobe
+        - OpenShift
+        - iOS / Android App
+        - Other libraries and SDKs
+    validations:
+      required: true
+  - type: input
+    id: version-change
+    attributes:
+      label: Version Change (if applicable)
+      description: Describe version changes following semantic versioning syntax, "1.0.0 -> 1.0.1"
+      placeholder: x.x.x -> y.y.y
+  - type: checkboxes
+    id: tests-on-deployment
+    attributes:
+      label: Automated Tests
+      options:
+        - label: This app has automated tests running on deployments
+  - type: input
+    id: sre-prime
+    attributes:
+      label: SRE Prime
+      description: Who is the SRE who can provide deep context into this change?
+      placeholder: Kulvir Gahunia
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Organizational Details
+  - type: dropdown
+    id: business-unit
+    attributes:
+      label: Business Unit
+      options:
+        - TELUS Digital
+        - Koodo
+        - Public
+        - TELUS Health
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: team
+    attributes:
+      label: Team
+      description: What team owns this change?
+      placeholder: MyTELUS QA
+    validations:
+      required: true
+  - type: input
+    id: simplify-url
+    attributes:
+      label: SimplifyHub URL
+      description: What is the SimplifyHub URL for this project?
+      placeholder: https://simplify.telus.com/catalog/default/component/my-telus-e2e
+    validations:
+      required: true
