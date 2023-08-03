@@ -1,0 +1,19 @@
+name: Print Issue URL
+on:
+  issues:
+    types:
+      - closed
+
+jobs:
+  print_issue_url:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Print Issue URL
+        env:
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          echo "Issue URL: $ISSUE_URL"
