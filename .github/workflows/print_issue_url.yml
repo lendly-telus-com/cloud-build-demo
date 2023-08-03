@@ -23,44 +23,43 @@ jobs:
         run: |
           # Create the GraphQL query string
           GRAPHQL_QUERY=$(cat <<EOF
-              {
-              "query": "query {
-                  user(login: \"lendly-telus-com\") {
-                  projectV2(number: 1) {
-                      id
-                      items(first: 50) {
-                      nodes {
-                          id
-                          content {
-                          ... on Issue {
-                              id
-                              state
-                              number
-                              title
-                              url
-                          }
-                          }
-                          fieldValues(first: 10) {
-                          nodes {
-                              ... on ProjectV2ItemFieldSingleSelectValue {
-                              id
-                              name
-                              field {
-                                  ... on ProjectV2SingleSelectField {
-                                  name
-                                  }
-                              }
-                              }
-                          }
-                          }
-                      }
-                      }
-                  }
-                  }
-              }"
+                {
+                    "query": "query {
+                            user(login: \"lendly-telus-com\") {
+                            projectV2(number: 1) {
+                                id
+                                items(first: 50) {
+                                nodes {
+                                    id
+                                    content {
+                                    ... on Issue {
+                                        id
+                                        state
+                                        number
+                                        title
+                                        url
+                                    }
+                                        }
+                                        fieldValues(first: 10) {
+                                            nodes {
+                                                ... on ProjectV2ItemFieldSingleSelectValue {
+                                                id
+                                                name
+                                                field {
+                                                    ... on ProjectV2SingleSelectField {
+                                                    name
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }"
               }
-              EOF
-              )
+              EOF)
           # Use GraphQL API to get the issue status and name from projectV2
           RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" -H "Content-Type: application/json" -X POST -d "$GRAPHQL_QUERY" https://api.github.com/graphql)
           echo "::set-output name=response::$RESPONSE"
