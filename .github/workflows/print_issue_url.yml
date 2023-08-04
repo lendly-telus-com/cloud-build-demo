@@ -25,4 +25,5 @@ jobs:
 
       - name: Run hello
         run: |
-          node hello.js
+          result=$(node -e "const hello = require('./hello'); console.log(hello());")
+          echo "Result: $result"
