@@ -25,4 +25,4 @@ jobs:
 
       - name: Run hello.js
         run: |
-          cat node path/to/your/hello.js
+          echo "hello"
