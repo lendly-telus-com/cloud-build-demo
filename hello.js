@@ -1,4 +1,4 @@
-hello = () => {
+function hello() {
   return 'hello pogs';
-};
-module.exports = hello;
+}
+module.export = hello;
