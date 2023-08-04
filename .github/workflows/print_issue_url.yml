@@ -15,8 +15,7 @@ jobs:
       - name: Get Issue URL
         id: get_url
         run: |
-          ISSUE_URL=$(echo "${{ github.event.issue.number }}")
-          echo ISSUE_URL
+          echo "${{ github.event.issue.number }}
 
       - name: Install Node.js
         uses: actions/setup-node@v2
@@ -25,4 +24,4 @@ jobs:
 
       - name: Run hello.js
         run: |
-          echo "hello"
+          echo ./hello.js
