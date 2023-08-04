@@ -23,6 +23,6 @@ jobs:
         with:
           node-version: '14.x'
 
-      - name: Run hello.js
+      - name: Run hello
         run: |
-          echo ./hello.js
+          node hello.js
