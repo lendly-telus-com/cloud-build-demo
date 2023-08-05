@@ -1,4 +1,5 @@
 hello = () => {
   return 'hello pogs';
 };
-module.exports = hello;
+
+console.log(hello());
