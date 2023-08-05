@@ -25,4 +25,5 @@ jobs:
 
       - name: Run hello
         run: |
-          node hello.js
+          output=$(node hello.js)
+          echo "$output"
