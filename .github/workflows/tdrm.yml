@@ -42,7 +42,7 @@ jobs:
       - name: Get project data
         env:
           #TEMPORARILY USE PERSONAL TOKEN FOR TEST AND DEMO
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
           USER: 'lendly-telus-com'
           PROJECT_NUMBER: 1
         run: |
