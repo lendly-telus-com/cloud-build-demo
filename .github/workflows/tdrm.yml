@@ -48,7 +48,7 @@ jobs:
         run: |
           gh api graphql -f query='
           query($user: String!, $number: Int!) {
-            organization(login: $user) {
+            user(login: $user) {
               id
               projectV2(number: $number) {
                 id
@@ -84,7 +84,7 @@ jobs:
         id: get_issue_status
         run: |
           issueURL=${{ github.event.issue.html_url }}
-          status=$(jq -r --arg url "$issueURL" '.data.organization.projectV2.items.nodes[] | select(.content.url == $url) | .fieldValues.nodes[] | select(.field?.name == "Status") | .name' project_data.json)
+          status=$(jq -r --arg url "$issueURL" '.data.user.projectV2.items.nodes[] | select(.content.url == $url) | .fieldValues.nodes[] | select(.field?.name == "Status") | .name' project_data.json)
           echo "Status of $issueURL is $status"
           echo "ISSUE_STATUS=$status" >> $GITHUB_OUTPUT
 
