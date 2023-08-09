@@ -43,12 +43,12 @@ jobs:
         env:
           #TEMPORARILY USE PERSONAL TOKEN FOR TEST AND DEMO
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          ORGANIZATION: 'lendly-telus-com'
+          USER: 'lendly-telus-com'
           PROJECT_NUMBER: 1
         run: |
           gh api graphql -f query='
-          query($org: String!, $number: Int!) {
-            organization(login: $org) {
+          query($user: String!, $number: Int!) {
+            organization(login: $user) {
               id
               projectV2(number: $number) {
                 id
@@ -78,7 +78,7 @@ jobs:
                 }
               }
             }
-          }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          }' -f user=$USER -F number=$PROJECT_NUMBER > project_data.json
 
       - name: Get Issue Status
         id: get_issue_status
