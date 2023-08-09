@@ -1,0 +1,109 @@
+name: Change Issue Status
+on:
+  issues:
+    types: ['closed']
+jobs:
+  issue_status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get Scheduled Date From Issue Body
+        id: extract_date
+        run: |
+          bodyText="${{ github.event.issue.body }}"
+          declare -A bodyJSON
+          while IFS= read -r line; do
+              if [[ $line == "###"* ]]; then
+                  currentKey=$(echo "$line" | sed 's/### //g' | tr -d '\n\r')
+              elif [[ -n $line ]]; then
+                  bodyJSON["$currentKey"]+="$line"
+              fi
+          done <<< "$bodyText"
+          date_time=$(echo "${bodyJSON['Date & Time (EST)']}" | tr -d '\r\n')
+          date_only=${date_time:0:10}
+          if [[ $date_only =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2} ]]; then
+              echo "${date_only}"
+              echo "DATE_TIME=$date_only" >> $GITHUB_OUTPUT
+          else
+              echo "No valid date found, handling as needed"
+              echo "${date_only}"
+              # Additional logic here to handle the case where no valid date was found
+          fi
+      # WILL BE USED TO AUTHENTICATE GRAPHQL ON IMPLEMENTATION
+      # - name: Generate token
+      #   id: generate_token
+      #   uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+      #   with:
+      #     app_id: ${{ secrets.APP_ID }}
+      #     private_key: ${{ secrets.APP_PEM }}
+
+      - name: Get project data
+        env:
+          #TEMPORARILY USE PERSONAL TOKEN FOR TEST AND DEMO
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          ORGANIZATION: 'lendly-telus-com'
+          PROJECT_NUMBER: 1
+        run: |
+          gh api graphql -f query='
+          query($org: String!, $number: Int!) {
+            organization(login: $org) {
+              id
+              projectV2(number: $number) {
+                id
+                items(last: 20) {
+                  nodes {
+                    id
+                    content {
+                      ... on Issue {
+                        url
+                        state
+                      }
+                    }
+                    fieldValues(first: 20) {
+                      nodes {
+                        ... on ProjectV2ItemFieldSingleSelectValue {
+                          field {
+                            ... on ProjectV2SingleSelectField {
+                              name
+                            }
+                          }
+                          name
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+
+      - name: Get Issue Status
+        id: get_issue_status
+        run: |
+          issueURL=${{ github.event.issue.html_url }}
+          status=$(jq -r --arg url "$issueURL" '.data.organization.projectV2.items.nodes[] | select(.content.url == $url) | .fieldValues.nodes[] | select(.field?.name == "Status") | .name' project_data.json)
+          echo "Status of $issueURL is $status"
+          echo "ISSUE_STATUS=$status" >> $GITHUB_OUTPUT
+
+      - name: Echo all needed value for CRQ
+        run: |
+          echo "Issue Title: ${{ github.event.issue.title }}"
+          echo "Issue Status: ${{ steps.get_issue_status.outputs.ISSUE_STATUS}}"
+          echo "Issue URL: ${{ github.event.issue.html_url }}"
+          echo "Scheduled Date: ${{ steps.extract_date.outputs.DATE_TIME}}"
+          echo "Issue Body: ${{ github.event.issue.body }}"
+
+    #   - name: Create and Close CRQ
+    #     uses: "telus/itsm-crq-action@main"
+    #     with:
+    #       clientId: ${{ secrets.REC_CLIENT_ID }}
+    #       clientSecret: ${{ secrets.REC_CLIENT_SECRET }}
+    #       cmdbid: "21641"
+    #       scheduledDate: ${{ steps.extract_date.outputs.DATE_TIME}}
+    #       requestorId: "svcApiRiskEngine"
+    #       issueTitle: ${{ github.event.issue.title }}
+    #       issueDetails: ${{ github.event.issue.body }}
+    #       status: ${{ steps.get_issue_status.outputs.ISSUE_STATUS}}
