@@ -1,32 +1,32 @@
-name: Print Issue Status
-on:
-  issues:
-    types:
-      - closed
+# name: Print Issue Status
+# on:
+#   issues:
+#     types:
+#       - closed
 
-jobs:
-  print_issue_status:
-    runs-on: ubuntu-latest
+# # jobs:
+#   print_issue_status:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Check out the code
+#         uses: actions/checkout@v2
 
-      - name: Get Issue URL
-        id: get_url
-        run: |
-          ISSUE_URL=$(echo "${{ github.event.issue.html_url }}")
-          echo $ISSUE_URL
+#       - name: Get Issue URL
+#         id: get_url
+#         run: |
+#           ISSUE_URL=$(echo "${{ github.event.issue.html_url }}")
+#           echo $ISSUE_URL
 
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
+#       - name: Install Node.js
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: 14
 
-      - name: Install dependencies
-        run: npm install
+#       - name: Install dependencies
+#         run: npm install
 
-      - name: Run hello
-        run: |
-          output=$(node hello.js)
-          echo "$output"
+#       - name: Run hello
+#         run: |
+#           output=$(node hello.js)
+#           echo "$output"
